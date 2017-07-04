@@ -1,0 +1,311 @@
+Introduction to DataScience with Go
+JDEV Go DataScience Workshop, 2017-07-06
+
+Sébastien Binet
+CNRS/IN2P3/LPC
+binet@clermont.in2p3.fr
+@0xb1ns
+
+* Prelude
+
+* Prelude
+
+Sources and resources for this workshop are here:
+
+.link https://github.com/sbinet/jdev-go-datascience-2017
+
+Extracted and adapted from:
+
+.link https://github.com/ardanlabs/gotraining
+
+License: Apache-2.
+
+* Introduction
+
+Why would one use [[https://golang.org][Go]] for Science and DataScience ?
+
+- easy deployment (static binaries)
+- reproductibility, resilience
+- concurrency
+- performances, resources
+
+What is DataScience ?
+
+- Process that uses datasets to make decisions that have "actions" and "consequences"
+- Take advantage of s/w engineering, statistical, and scientific skills to develop insights from raw data.
+
+* DataScience: process & skils
+
+- Data gathering, organization, and cleaning.
+- Data parsing and/or pattern extraction.
+- Arithmetic (sums, minmax, fits, neural net, deep learning, ...)
+- Conveying results.
+
+.image _figs/forbes_data_science.jpg _ 900
+
+* Maintaining integrity in DataScience applications
+
+Integity in data science applications is crucial, because data science applications exist to provide data-driven insights. As soon as the integrity of a data science application breaks down, people lose trust in the output and, as a result, will refuse to make decisions based on the output. Go helps us maintain integrity in terms of reproducibility and deployment, which are common struggles for data scientists.
+
+- Data science applications should consider integrity before performance or sophistication.
+- A lack of reproducibility destroys the credibility of a data science application.
+- Integrity cannot be maintained with a complicated deploy.
+- If errors and edge cases are handled gracefully in Go, you can have confidence in how your application will behave.
+
+* 
+
+Let's analyze the following CSV file:
+
+.code data/example_clean.csv
+
+We want to get the maximum value of the first column (the integers.)
+
+A possible solution to achieve this in python could be:
+
+.code _code/integrity-ex1.py /START OMIT/,/END OMIT/
+
+  $> 3
+
+* In Go
+
+.code _code/integrity-ex1.go /START-1 OMIT/,/END-1 OMIT/
+
+
+* (cont'd)
+
+.code _code/integrity-ex1.go /START-2 OMIT/,/END-2 OMIT/
+
+  $> 3
+
+* 
+
+Go code is longer on the page.
+
+So Python is clearly better, right ?
+
+* Integrity
+
+Now try with this CSV file:
+
+.code data/example_messy.csv
+
+
+ $> python ./run.py
+ 2
+
+Python will silently swallow the error originated from the missing data.
+
+While Go clearly reports something went awry:
+
+ $> go run ./main.go
+ 2017/07/04 23:29:26 strconv.Atoi: parsing "": invalid syntax
+ exit status 1
+ 
+* Go and DataScience
+
+Go is (still) a rather new language.
+It just hasn't had time to get the breadth of libraries one can get with Python.
+
+That said, useful and robust libraries are already there:
+
+- [[https://golang.org/pkg][standard library]]: `csv`, `json`, `xml`, `math`, `math/rand`, `database/sql`, ...
+- [[https://gonum.org][Gonum]]: `lapack`, `blas`, `matrix`, `stats`, `plots`, `graph`, ...
+- [[https://go-hep.org/x/hep][go-hep]]: `plots`, `histograms`, `csv-db`, `fits`, ...
+- [[http://gopherdata.io/][gopherdata.io]]: [[https://jupyter.org][Jupyter]] kernel for Go, resources about data science, machine learning, ...
+
+* CSV data
+
+* CSV data I/O + parsing
+
+It is quite common to have to deal (ingest, parse, clean, process, ...) with CSV data.
+
+Let's see how one can perform such tasks with Go.
+
+The standard library of Go provides a package that deals with CSV:
+
+- [[https://godoc.org/encoding/csv][encoding/csv]]
+
+* Read CSV data
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-io-01.go][csv-io-01.go]]
+
+  $> go run csv-io-01.go
+  [...]
+  [6.7 3.3 5.7 2.5 Iris-virginica]
+  [6.7 3.0 5.2 2.3 Iris-virginica]
+  [6.3 2.5 5.0 1.9 Iris-virginica]
+  [6.5 3.0 5.2 2.0 Iris-virginica]
+  [6.2 3.4 5.4 2.3 Iris-virginica]
+  [5.9 3.0 5.1 1.8 Iris-virginica]
+  
+* Read CSV data - handling unexpected fields
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-io-02.go][csv-io-02.go]]
+
+  $> go run csv-io-02.go
+  2017/07/04 23:53:12 line 17, column 0: wrong number of fields in line
+  2017/07/04 23:53:12 Sucessfully parsed 149 lines
+
+* Read CSV data - handling unexpected types
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-io-03.go][csv-io-03.go]]
+
+  $> go run csv-io-03.go 
+  2017/07/05 00:07:11 Parsing line 5 failed, unexpected type
+  2017/07/05 00:07:11 Parsing line 20 failed, unexpected type
+  2017/07/05 00:07:11 Parsing line 125 failed, unexpected type
+  2017/07/05 00:07:11 Sucessfully parsed 147 lines of the second column
+
+* Write CSV data
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-io-04.go][csv-io-04.go]]
+
+  $> go run ./_code/csv-io-04.go 
+  $> cat output.csv 
+  1.2,1.3,0.3,0.12,Iris-setosa
+  1.0,2.1,0.4,0.8,Iris-setosa
+  2.1,8.2,0.7,0.2,Iris-setosa
+  3.2,1.8,0.2,0.15,Iris-versicolor
+  2.5,2.7,0.5,0.1,Iris-versicolor
+  1.7,3.5,1.0,0.7,Iris-virginica
+  1.7,3.1,0.5,0.2,Iris-virginica
+  1.1,3.0,0.2,0.1,Iris-virginica
+
+* CSV - exercize 1
+
+- Parse `iris_multiple_mixed_types.csv`
+- Define expected types for all of the columns in the CSV file and log any errors indicating unexpected types.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-io-ex-01.go][csv-io-ex-01.go]]
+
+* CSV - exercize 2
+
+Save the parsed and cleaned `iris_multiple_mixed_types.csv` to a file called `processed.csv`.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-io-ex-02.go][csv-io-ex-02.go]]
+
+* CSV cleaning
+
+When dealing with CSV data or other forms of tabular data, you will likely want to do things like filter the data on certain fields, get subsets of the data, etc...
+For example, you might just be interested in all rows where the Iris Species column has a certain value, or you maybe interested in splitting the dataset into training and test sets for a machine learning algorithm.
+The Go data science community has produced a few great packages that can help you with these tasks.
+
+- [[https://godoc.org/github.com/kniren/gota][github.com/kniren/gota]]: Dataframes for Go
+- [[https://godoc.org/go-hep.org/x/hep/csvutil][go-hep.org/x/hep/csvutil]]: CSV library and utilities for `database/sql`
+
+E.g.
+
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-clean-01.go][csv-clean-01.go]]: Iterate over CSV records, reading data into a struct
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-clean-02.go][csv-clean-02.go]]: Register a CSV as a table, execute SQL statements on the CSV
+
+* Exercize
+
+Use `go-hep.org/x/hep/csvutil/csvdriver` to read `iris.csv`, sum the float values in the first four columns, and output a processed CSV file with two columns delimited by semicolons, the first having the sum value for the row and the second having the respective species.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/csv-clean-ex-01.go][csv-clean-ex-01.go]]
+
+* JSON data
+
+* JSON data
+
+Typically JSON is used when ease-of-use is the primary goal of data interchange.
+Because JSON is human-readable, it is easy to debug if something breaks.
+Many APIs and datastores/caches represent data in JSON, and, without a doubt, you will have to work with JSON as a data scientist.
+
+Support for encoding and decoding JSON data is provided by [[https://godoc.org/encoding/json][encoding/json]].
+
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/json-01.go][json-01.go]]: Unmarshal JSON data from the Citibike API
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/json-02.go][json-02.go]]: Marshal data and save a JSON file
+
+* Exercize
+
+Convert the station data in from the Citibike station status API from JSON to CSV. 
+Unmarshal the station statuses from the API and save the station ID along with corresponding integer counts to a CSV file with a header.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/json-ex-01.go][json-ex-01.go]]
+
+
+* Matrices & Linear Algebra
+
+* Matrix Creation, Modification, and Access
+
+Many modeling, machine learning, and optimization algorithms rely on linear algebra concepts.
+These concepts include eigenvalues/vectors, matrix multiplication, matrix inversion, and more.
+Thus, data utilized by data scientists often has to be represented in matrix form, and data scientists will likely need to employ matrix operations in their applications.
+
+The [[https://gonum.org][Gonum]] community has created a bunch of numerical-oriented packages in Go, among which:
+
+- [[https://godoc.org/gonum.org/v1/gonum/mat][gonum.org/v1/gonum/mat]]
+
+E.g.:
+
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-01.go][mat-01.go]]: Create and modify a matrix
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-02.go][mat-02.go]]: Access values in a matrix
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-03.go][mat-03.go]]: Format matrix output
+
+* Exercize
+
+Create a matrix from `diabetes.csv` using `gonum.org/v1/gonum/mat`.
+Format and output the first 10 rows to standard out.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-ex-01.go][mat-ex-01.go]]
+
+* Matrix operations
+
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-04.go][mat-04.go]]: Matrix arithmetic
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-05.go][mat-05.go]]: Transpose, Det, Dot Product, Inverse
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-06.go][mat-06.go]]: Solve for eigenvalues/vectors
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-07.go][mat-07.go]]: Vector/Matrix Norms
+
+* Exercize
+
+Divide the following matrix by its norm:
+
+  a = ⎡1  2  3⎤
+      ⎢0  4  5⎥
+      ⎣0  0  6⎦
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/mat-ex-02.go][mat-ex-02.go]]
+
+* Statistics and Aggregation
+
+* Summary measures
+
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/stat-01.go][stat-01.go]]: Mean, Mode
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/stat-02.go][stat-02.go]]: Min, Max, Range
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/stat-03.go][stat-03.go]]: Variance, Standard Deviation
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/stat-04.go][stat-04.go]]: Quantiles
+
+* Exercize
+
+Output central tendency and statistical dispersion (or "spread") measures together for all numeric features of the iris data set.
+Looking at these measure together gives a quick snapshot of "what the data looks like" numerically.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/stat-ex-01.go][stat-ex-01.go]]
+
+* Visualizing distributions
+
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/viz-01.go][viz-01.go]]: Histogram of a normal distribution
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/viz-02.go][viz-02.go]]: Histograms with real data
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/viz-03.go][viz-03.go]]: Box Plot with various distribution
+- [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/viz-04.go][viz-04.go]]: Box Plots with real data
+
+
+* Exercizes
+
+Create a box plot of the values in the third column bmi of `diabetes.csv`.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/viz-ex-01.go][viz-ex-01.go]]
+
+Create a histogram of the values in the third column bmi of `diabetes.csv`.
+
+[[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/viz-ex-02.go][viz-ex-02.go]]
+
+* More ?
+
+Want some more ?
+
+Go there:
+
+.link https://github.com/ardanlabs/gotraining/blob/master/topics/courses/data/README.md
+
