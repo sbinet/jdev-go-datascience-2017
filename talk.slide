@@ -113,6 +113,11 @@ That said, useful and robust libraries are already there:
 - [[https://go-hep.org/x/hep][go-hep]]: `plots`, `histograms`, `csv-db`, `fits`, ...
 - [[http://gopherdata.io/][gopherdata.io]]: [[https://jupyter.org][Jupyter]] kernel for Go, resources about data science, machine learning, ...
 
+- [[https://github.com/sbinet/npyio][github.com/sbinet/npyio]]: read/write NumPy `.np(y|z)` files
+- [[https://github.com/sbinet/matfio][github.com/sbinet/matfio]]: [WIP] Matlab files
+- [[https://github.com/gonum/hdf5][github.com/gonum/hdf5]]: read/write HDF5 files
+- [[https://github.com/galeone/tfgo][github.com/galeone/tfgo]]: interface to TensorFlow
+
 * CSV data
 
 * CSV data I/O + parsing
@@ -301,11 +306,10 @@ Create a histogram of the values in the third column bmi of `diabetes.csv`.
 
 [[https://github.com/sbinet/jdev-go-datascience-2017/blob/master/_code/viz-ex-02.go][viz-ex-02.go]]
 
-* More ?
+* More exercizes ?
 
 Want some more ?
 
 Go there:
 
 .link https://github.com/ardanlabs/gotraining/blob/master/topics/courses/data/README.md
-
